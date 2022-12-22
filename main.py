@@ -29,7 +29,7 @@ async def play(ctx):
             vc = await voice_channel.channel.connect()
             musics = get_musics("./musics")
 
-            print(musics)
+            #print(musics)
 
             for music in musics:
                 await ctx.send(f"Reproduzindo: {music}")
