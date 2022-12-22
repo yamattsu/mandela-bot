@@ -34,6 +34,7 @@ async def play(ctx):
             for music in musics:
                 await ctx.send(f"Reproduzindo: {music}")
                 vc.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg", source=music))
+                vc.source = discord.PCMVolumeTransformer(vc.source, 0.7)
 
                 while vc.is_playing():
                     await asyncio.sleep(1)
