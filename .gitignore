@@ -1,4 +1,3 @@
 .env
 .virtualenv
-*.mp3
 __pycache__
