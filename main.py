@@ -6,6 +6,7 @@ import youtube_dl
 from discord.ext import commands
 from dotenv import load_dotenv
 from time import sleep
+from music_utils import get_musics
 import asyncio
 
 intents = discord.Intents.all()
@@ -13,13 +14,6 @@ intents.members = True
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="$", intents=intents)
-
-voice_clients = {}
-
-yt_dl_opts = {"format": "bestaudio/best"}
-ytdl = youtube_dl.YoutubeDL(yt_dl_opts)
-
-ffmpeg_opts = {"options": "-vn"}
 
 @bot.event
 async def on_ready():
@@ -31,26 +25,24 @@ async def play(ctx):
         voice_channel = ctx.author.voice
         channel = None
         if voice_channel != None:
-            await ctx.send(f"Você está em um canal de voz! {voice_channel.channel.name}")
-            # channel = voice_channel.name
+            await ctx.send(f"[+] Entrando no canal de voz e começando a reprodução da playlist!")
             vc = await voice_channel.channel.connect()
-#            print(voice_channel)
-#            vc.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg", source="override.mp3"))
+            musics = get_musics("./musics")
 
-            vc.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg", source="./endoftheworld.mp3"))
+            print(musics)
 
-            while vc.is_playing():
-                await asyncio.sleep(1)
+            for music in musics:
+                await ctx.send(f"Reproduzindo: {music}")
+                vc.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg", source=music))
 
-            vc.play(discord.FFmpegPCMAudio(executable="/usr/bin/ffmpeg", source="./littledarkage.mp3"))
-
-            while vc.is_playing():
-                await asyncio.sleep(1)
-
+                while vc.is_playing():
+                    await asyncio.sleep(1)
+            
+            await ctx.send("[+] Playlist finalizada!")
             await vc.disconnect()
 
         else:
-            await ctx.send(f"{ctx.author.name}, você não está em um canal de voz!")
+            await ctx.send(f"[+] {ctx.author.name}, você não está em um canal de voz!")
 
 
     except Exception as err:
