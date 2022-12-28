@@ -6,6 +6,11 @@ from random import randint
 import discord
 from discord.ext import commands
 
+from utils import (
+    return_reproduction_images_to_embed,
+    return_embed_help_images
+)
+
 
 class MusicBot(commands.Cog):
     "MusicBot Cog for my personal music bot"
@@ -15,37 +20,17 @@ class MusicBot(commands.Cog):
         self.vc = None       # discord.VoiceClient()
         self.music_index = 0
         self.musics_list = []
+
         self.default_embed_color = 0x10ffa8
-        self.playing_embed = discord.Embed(color=self.default_embed_color)
+        self.embedding_playback = discord.Embed(color=self.default_embed_color)
+        self.reproduction_images_to_embed = return_playback_images_to_embed()
+        self.embed_help_images = return_embed_help_images()
 
         self.playlists = {
             "funk-shitpost": "./musics/funk-shitpost",
             "lofi": "./musics/lofi"
         }
 
-        self.playing_embed_images = [
-            "https://i.pinimg.com/originals/8d/b6/33/8db63391392f24b5946107b0af92caec.jpg",
-            "https://wallpapercave.com/wp/wp4779055.png",
-            "https://wallpaperaccess.com/full/3434188.jpg",
-            "https://wallpapercave.com/wp/wp8151805.jpg",
-            "https://wallpapercave.com/wp/wp5756318.jpg",
-            "https://wallpaperforu.com/wp-content/uploads/2021/03/Wallpaper-Lofi-Anime-Anime-Girls-Room-Laptop-Brunette-Look48-1536x865.jpg",
-            "https://wallpaperaccess.com/full/1511068.png",
-            "https://i.pinimg.com/originals/13/ab/1c/13ab1c2a907541d07426df22083f01d1.jpg",
-            "https://i.pinimg.com/originals/ad/2c/67/ad2c6767f4fc8c7f3a013d6a11f2ed66.jpg",
-            "https://wallpapercave.com/wp/wp5161081.jpg",
-            "https://wallpaperboat.com/wp-content/uploads/2021/12/20/79953/lofi-girl-15.jpg",
-            "https://wallpaperaccess.com/full/2223498.jpg",
-            "https://wallpapercave.com/wp/wp5161083.jpg",
-            "https://wallpaperaccess.com/full/754903.jpg",
-            "https://wallpapercave.com/wp/wp7817997.jpg"
-        ]
-
-        self.help_embed_images = {
-            "helpme": "https://lh5.googleusercontent.com/proxy/vhI84k6wjQOZXgG-wbCMbNfTOaKmDshzKGffSr-ApVkqJ_UAMmhR0yzJhTH3SLLz5Jz9M-v_9TDJopwiE2HTHI8V6GB7fI742pp5JdXe5YlMJ9EKwN-sa8SonKlUG6Hn=w1200-h630-p-k-no-nu",
-            "list_playlists": "https://wallpaperaccess.com/full/849778.jpg",
-            "list_songs": "https://wallpapercave.com/wp/wp4602843.png"
-        }
 
     @commands.command()
     async def play(self, ctx, playlist=None):
@@ -63,13 +48,13 @@ class MusicBot(commands.Cog):
                 await ctx.send(f"[-] Começando a reprodução da playlist `{playlist}`")
 
                 while True:
-                    self.playing_embed.title = self.get_music_name(self.musics_list[self.music_index].name)
-                    self.playing_embed.description = f"`Reproduzindo a {self.music_index+1}° faixa de {len(self.musics_list)} de faixa(s)`"
-                    self.playing_embed.set_author(
+                    self.embedding_playback.title = self.get_music_name(self.musics_list[self.music_index].name)
+                    self.embedding_playback.description = f"`Reproduzindo a {self.music_index+1}° faixa de {len(self.musics_list)} de faixa(s)`"
+                    self.embedding_playback.set_author(
                         name=f"Playlist - {playlist.capitalize()}",
                         icon_url="http://www.clipartbest.com/cliparts/nTB/RaB/nTBRaB6kc.gif"    
                     )
-                    self.playing_embed.set_image(url=self.playing_embed_images[randint(0, len(self.playing_embed_images)-1)])
+                    self.embedding_playback.set_image(url=self.reproduction_images_to_embed[randint(0, len(self.reproduction_images_to_embed)-1)])
 
                     self.vc.play(discord.FFmpegPCMAudio(
                         executable="/usr/bin/ffmpeg",
@@ -78,7 +63,7 @@ class MusicBot(commands.Cog):
                     self.vc.source = discord.PCMVolumeTransformer(self.vc.source, 0.7)
 
                     # await ctx.send(f"[-] Reproduzindo: `{self.musics_list[self.music_index]}`")
-                    await ctx.send(embed=self.playing_embed)
+                    await ctx.send(embed=self.embedding_playback)
 
                     while self.vc.is_playing() or self.vc.is_paused():
                         await asyncio.sleep(1)
@@ -146,9 +131,9 @@ class MusicBot(commands.Cog):
                         await ctx.send(f"[-] A playlist chegou ao fim, a reprodução atual é a última!")
                         return
 
-                    self.playing_embed.title = self.get_music_name(self.musics_list[self.music_index].name)
-                    self.playing_embed.description = f"`Reproduzindo a {self.music_index+1}° faixa de {len(self.musics_list)} de faixa(s)`"
-                    self.playing_embed.set_image(url=self.playing_embed_images[randint(0, len(self.playing_embed_images)-1)])
+                    self.embedding_playback.title = self.get_music_name(self.musics_list[self.music_index].name)
+                    self.embedding_playback.description = f"`Reproduzindo a {self.music_index+1}° faixa de {len(self.musics_list)} de faixa(s)`"
+                    self.embedding_playback.set_image(url=self.reproduction_images_to_embed[randint(0, len(self.reproduction_images_to_embed)-1)])
 
                     self.vc.stop()
                     self.vc.play(discord.FFmpegPCMAudio(
@@ -156,7 +141,7 @@ class MusicBot(commands.Cog):
                         source=self.musics_list[self.music_index]
                     ))
 
-                    await ctx.send(embed=self.playing_embed)
+                    await ctx.send(embed=self.embedding_playback)
 
                     while self.vc.is_playing or self.vc.is_paused():
                         await asyncio.sleep(1)
@@ -173,7 +158,7 @@ class MusicBot(commands.Cog):
             color=self.default_embed_color
         )
 
-        embed.set_image(url=self.help_embed_images["helpme"])
+        embed.set_image(url=self.embed_help_images["helpme"])
         embed.add_field(
             name="Comandos\n", 
             value=self.get_commands_list(), 
@@ -189,7 +174,7 @@ class MusicBot(commands.Cog):
             color=self.default_embed_color
         )
 
-        embed.set_image(url=self.help_embed_images["list_playlists"])
+        embed.set_image(url=self.embed_help_images["list_playlists"])
         embed.add_field(
             name="Playlists",
             value=self.get_playlists(),
@@ -208,7 +193,7 @@ class MusicBot(commands.Cog):
                     color=self.default_embed_color
                 )
 
-                embed.set_image(url=self.help_embed_images["list_songs"])
+                embed.set_image(url=self.embed_help_images["list_songs"])
                 embed.add_field(
                     name="Faixas:", 
                     value=self.get_all_musics_name("./musics/" + playlist),
