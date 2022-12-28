@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 from utils import (
-    return_reproduction_images_to_embed,
+    return_playback_images_to_embed,
     return_embed_help_images
 )
 
