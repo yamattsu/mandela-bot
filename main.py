@@ -7,7 +7,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from rich.console import Console
 
-from music_utils import MusicBot
+from musicbot import MusicBot
 
 intents = discord.Intents.all()
 intents.members = True
