@@ -31,7 +31,6 @@ class MusicBot(commands.Cog):
             "lofi": "./musics/lofi"
         }
 
-
     @commands.command()
     async def play(self, ctx, playlist=None):
         if ctx.author.voice:
